@@ -2,7 +2,7 @@ name: Eddie's Stock Check
 
 on:
   schedule:
-    - cron: "0 14 * * *"  # 2 PM UTC (10 AM EDT / 9 AM EST)
+    - cron: "30 13 * * *"  # 1:30 PM UTC (9:30 AM EDT / 8:30 AM EST)
   workflow_dispatch:
 
 jobs:
