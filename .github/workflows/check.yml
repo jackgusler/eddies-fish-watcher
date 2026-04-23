@@ -23,21 +23,22 @@ jobs:
         run: pip install requests pypdf pytz
 
       - name: Check if it's 9 AM Eastern Time
-        run: python3 << 'EOF'
-          import datetime
-          import pytz
-          
-          eastern = pytz.timezone('US/Eastern')
-          now = datetime.datetime.now(eastern)
-          
-          # Only proceed if we're in the 9 AM hour (9:00-9:59 AM ET)
-          if now.hour != 9:
-              print(f"Current time in Eastern: {now.strftime('%I:%M %p %Z')}")
-              print("Not 9 AM Eastern Time; exiting.")
-              exit(1)
-          
-          print(f"Current time in Eastern: {now.strftime('%I:%M %p %Z')} ✓")
-          EOF
+        run: |
+          python3 << 'EOF'
+import datetime
+import pytz
+
+eastern = pytz.timezone('US/Eastern')
+now = datetime.datetime.now(eastern)
+
+# Only proceed if we're in the 9 AM hour (9:00-9:59 AM ET)
+if now.hour != 9:
+    print(f"Current time in Eastern: {now.strftime('%I:%M %p %Z')}")
+    print("Not 9 AM Eastern Time; exiting.")
+    exit(1)
+
+print(f"Current time in Eastern: {now.strftime('%I:%M %p %Z')} ✓")
+EOF
 
       - name: Run check
         env:
