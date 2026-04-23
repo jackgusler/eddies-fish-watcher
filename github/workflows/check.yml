@@ -1,0 +1,58 @@
+name: Eddie's Stock Check
+
+on:
+  schedule:
+    - cron: "0 13,14 * * *"  # 1 PM and 2 PM UTC; script verifies Eastern Time
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Check if it's 9 AM Eastern Time
+        run: |
+          import datetime
+          import pytz
+          
+          eastern = pytz.timezone('US/Eastern')
+          now = datetime.datetime.now(eastern)
+          
+          # Only proceed if we're in the 9 AM hour (9:00-9:59 AM ET)
+          if now.hour != 9:
+              print(f"Current time in Eastern: {now.strftime('%I:%M %p %Z')}")
+              print("Not 9 AM Eastern Time; exiting.")
+              exit(1)
+          
+          print(f"Current time in Eastern: {now.strftime('%I:%M %p %Z')} ✓")
+        shell: python
+
+      - name: Install deps
+        run: pip install requests pypdf pytz
+
+      - name: Run check
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          NTFY_SERVER: ${{ secrets.NTFY_SERVER || 'https://ntfy.sh' }}
+        run: python check.py
+
+      - name: Commit state if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json stock.txt specials.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Eddie's stock [skip ci]"
+            git push
+          else
+            echo "Stock files unchanged; nothing to commit."
+          fi

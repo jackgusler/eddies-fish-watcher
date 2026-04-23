@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+last_page.html
+latest.pdf
