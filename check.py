@@ -336,13 +336,17 @@ def notify(
 
     body = "\n".join(lines) if lines else f"Stock updated as of {date_text}."
 
+    def latin1_safe(s: str) -> str:
+        return s.encode("latin-1", errors="replace").decode("latin-1")
+
     headers = {
-        "Title": f"Eddie's stock update — {date_text}",
+        "Title": latin1_safe(f"Eddie's stock update - {date_text}"),
         "Priority": "default",
         "Tags": "tropical_fish",
     }
     if diff_url:
-        headers["Click"] = diff_url
+        headers["Click"] = latin1_safe(diff_url)
+
 
     r = requests.post(
         f"{NTFY_SERVER}/{NTFY_TOPIC}",
